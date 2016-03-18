@@ -4,16 +4,12 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
-
-
-
-
-var routes = require('./routes/index');
-var users = require('./routes/users');
+var port = 3000;
 
 var app = express();
-
+var home = require('./routes/home.js');
+var online = require('./routes/online.js');
+var chat = require('./routes/chat.js');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -27,8 +23,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-//app.use('/', routes);
-app.use('/api', routes);
+
+app.use('/', home);//for testing purposes
+app.use('/online', online);
+app.use('/chat',chat);
 
 //app.use('/chat',require()) socket chat api
 
@@ -63,6 +61,25 @@ app.use(function(err, req, res, next) {
   });
 });
 
-app.listen(3000,'localhost');
+var io = require('socket.io').listen(app.listen(port));
+
+
+//socket io connections
+io.sockets.on('connection', function (socket) {
+	console.log('a user connected');
+    //socket.emit('message', { message: 'welcome to the chat' });
+  socket.on('chat message', function(msg){
+  	console.log(msg);
+    io.emit('chat message', msg);
+  });
+
+    socket.on('send', function (data) {
+        io.sockets.emit('message', data);
+    });
+    socket.on('disconnect', function(){
+    console.log('user disconnected');
+  });
+});
+
 
 module.exports = app;
