@@ -1,6 +1,8 @@
 Checklist
-* Facebook login api (Android)
 * Facebook login api (Node)
-* Node.js Chat Server
+* Facebook client 
 * Android UI
-
+* partner search algo
+* Database
+* performance and security
+* additional features

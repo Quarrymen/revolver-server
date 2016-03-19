@@ -1,15 +1,29 @@
+//packages
 var express = require('express');
+var FB = require('fb');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var port = 3000;
 
 var app = express();
+
+
+
+// global variables -Globals almost always ruin: testability, encapsulation and ease of maintenance.
+
+var appSecret= '448fbdd4a888c54a8bc58f987c25a23e';//Quarrymen app
+var appId = '1121742734525327';
+global.waitList = {};
+var port = 3000;
 var home = require('./routes/home.js');
 var online = require('./routes/online.js');
 var chat = require('./routes/chat.js');
+
+
+var io = require('socket.io').listen(app.listen(port));
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -60,8 +74,6 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-
-var io = require('socket.io').listen(app.listen(port));
 
 
 //socket io connections
