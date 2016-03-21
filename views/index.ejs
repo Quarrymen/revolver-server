@@ -1,39 +1,68 @@
 <!doctype html>
 <html>
-  <head>
-    <title><%= title %></title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      div#status{float: left;width: 400px;border: 1px solid; position: relative;border:1px solid;margin-right:20px;}
-      div#fb{width: 530px; position: relative;float: left;height: 563px; margin: 3px;}
-      div#chat{width: 530px;position: relative;float: right;height: 563px;
-    margin: 3px;}
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; height:100%;overflow: scroll;}
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
-    </style>
-  </head>
-  <body>
-<!--  
-
-start with https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow#checktoken
-
-<script>(function(d, s, id) {
+<head>
+<title><%= title %></title>
+<style>
+  a{text-decoration: none;color:white;}
+</style>
+<!--Import Google Icon Font-->
+<link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> 
+<!-- Compiled and minified CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css">
+<!--Let browser know website is optimized for mobile-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+  
+<script>
+// Load the SDK asynchronously
+(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
   js = d.createElement(s); js.id = id;
   js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.5&appId=1121742734525327";
   fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
+}(document, 'script', 'facebook-jssdk'));
 
-<div id="fb">
-<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="true"></div>
+function goOnline(){
+	$.post("http://localhost:3000/status", { uid: userId, tok: accessToken,status:'online' }).done(function(data, status){
+			//use toasts here #fix
+	        console.log("Data: " + data + "\nStatus: " + status);
+		});
+}
+function goOffline(){
+	$.post("http://localhost:3000/status", { uid: userId, tok: accessToken,status:'offline' }).done(function(data, status){
+			//use toasts here #fix
+	        console.log("Data: " + data + "\nStatus: " + status);
+	});
+}
+</script>
+
+<div class="row">
+    <div class="col s4 m4">
+      <div class="card red lighten-1">
+        <div class="card-content white-text">
+          <span class="card-title">Connect Facebook</span><br/>
+			<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="true" data-scope="public_profile,email,user_friends" onlogin=""></div>
+        </div>
+        
+        <div class="card-action">
+          <a class="waves-effect green lighten-2 waves-light btn" onclick="goOnline()"><i class="material-icons small left">visibility</i>Go Online</a>
+          <a class="waves-effect grey waves-light disabled btn" onclick="goOffline()"><i class="material-icons small left">visibility_off</i>Go Offline</a>
+        </div>
+        
+      </div>
+    </div>
+    <div class="col s8 m8">
+    	<div class="col s5 m5">
+	      <div class="input-field col s6">
+          <input placeholder="Type message here" id="message" type="text">
+          </div>
+	      <a class="btn-floating red"><i class="material-icons">send</i></a>
+    	</div>
+    </div>
 </div>
--->
+            
 <script>
   // This is called with the results from from FB.getLoginStatus().
   function statusChangeCallback(response) {
@@ -61,41 +90,6 @@ start with https://developers.facebook.com/docs/facebook-login/manually-build-a-
     });
   }
 
-  window.fbAsyncInit = function() {
-	  FB.init({
-	    appId      : '1121742734525327',
-	    cookie     : true,  // enable cookies to allow the server to access 
-	                        // the session
-	    xfbml      : true,  // parse social plugins on this page
-	    version    : 'v2.5' // use graph api version 2.5
-	  });
-
-	  // Now that we've initialized the JavaScript SDK, we call 
-	  // FB.getLoginStatus().  This function gets the state of the
-	  // person visiting this page and can return one of three states to
-	  // the callback you provide.  They can be:
-	  //
-	  // 1. Logged into your app ('connected')
-	  // 2. Logged into Facebook, but not your app ('not_authorized')
-	  // 3. Not logged into Facebook and can't tell if they are logged into
-	  //    your app or not.
-	  //
-	  // These three cases are handled in the callback function.
-
-	  FB.getLoginStatus(function(response) {
-	    statusChangeCallback(response);
-	  });
-  };
-
-  // Load the SDK asynchronously
-  (function(d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0];
-    if (d.getElementById(id)) return;
-    js = d.createElement(s); js.id = id;
-    js.src = "//connect.facebook.net/en_US/sdk.js";
-    fjs.parentNode.insertBefore(js, fjs);
-  }(document, 'script', 'facebook-jssdk'));
-
   // Here we run a very simple test of the Graph API after login is
   // successful.  See statusChangeCallback() for when this call is made.
   function testAPI() {
@@ -107,35 +101,19 @@ start with https://developers.facebook.com/docs/facebook-login/manually-build-a-
     });
   }
 
-</script>
-
-<!--
+/*
 The Login Dialog lets people decline to share certain permissions with your app that you ask for. Your app should handle this case. Learn more about this in our permissions dialog.
--->
+*/
 
-<fb:login-button scope="public_profile,email,user_friends" onlogin="checkLoginState();">
-</fb:login-button>
-
-	<div id="fb">
-	<div id="status"></div>
-	<button id="online">Go Online</button>
-	</div>
-
-  	<div id="chat">
-	    <ul id="messages"></ul>
-	    <form action="">
-	      <input id="m" autocomplete="off" /><button>Send</button>
-	    </form>
-    </div>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-	<script>
-	$("button#online").click(function(){
-	    $.post("http://localhost:3000/online", { uid: userId, tok: accessToken }).done(function(data, status){
-	        alert("Data: " + data + "\nStatus: " + status);
-	    });
-	});
-
+</script>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+ <!--Import jQuery before materialize.js-->
+ <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+ <!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js"></script>
+<script>
+	function initChat(){
 	  var socket = io();
 	  $('form').submit(function(){
 	    socket.emit('chat message', $('#m').val());
@@ -145,6 +123,6 @@ The Login Dialog lets people decline to share certain permissions with your app 
 	  socket.on('chat message', function(msg){
 	    $('#messages').append($('<li>').text(msg));
 	  });
-	</script>
-</body>
+	}
+</script>
 </html>
