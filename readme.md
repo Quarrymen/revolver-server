@@ -9,6 +9,7 @@ Checklist
 
 Start
 * google push service
+* app invites
 * Database
 * performance and security
 * additional features
