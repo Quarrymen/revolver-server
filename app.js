@@ -15,7 +15,8 @@ var app = express();
 
 var appSecret= '448fbdd4a888c54a8bc58f987c25a23e';//Quarrymen app
 var appId = '1121742734525327';
-global.waitList = {};
+global.users = {};
+global.waitUsers = [];
 var port = 3000;
 var home = require('./routes/home.js');
 var online = require('./routes/online.js');
@@ -38,8 +39,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-app.use('/', home);//for testing purposes
-app.use('/online', online);
+app.use('/', home);//web client for testing purposes
+app.use('/status', online);
 app.use('/chat',chat);
 
 //app.use('/chat',require()) socket chat api
@@ -81,8 +82,7 @@ io.sockets.on('connection', function (socket) {
 	console.log('a user connected');
     //socket.emit('message', { message: 'welcome to the chat' });
   socket.on('chat message', function(msg){
-  	console.log(msg);
-    io.emit('chat message', msg);
+    io.emit('chat message', {user:socket.id,msg:msg});
   });
 
     socket.on('send', function (data) {

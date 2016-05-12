@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-<title><%= title %></title>
+<title>Revolver</title>
 <style>
   a{text-decoration: none;color:white;}
   #logo{display:inline;}
@@ -16,6 +16,7 @@
 <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 </head>
 <body>
+<!--
   <nav>
     <div class="nav-wrapper small">
       <a href="#" class="brand-logo center">REV<i class="material-icons small" id="logo">graphic_eq</i>LVER</a>
@@ -24,22 +25,20 @@
       </ul>
     </div>
   </nav>
-
+-->
 <div class="row">
-    <div class="col s12 m4">
+    <div class="col s12 m3">
       <div class="card red lighten-1">
         <div class="card-content white-text">
           <span class="card-title">Connect Facebook</span><br/>
 			<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="true" data-scope="public_profile,email,user_friends" onlogin=""></div>
         </div>
-        
-        <div class="card-action">
-          <a class="waves-effect green lighten-2 waves-light btn" id="goOnline" onclick="goOnline()"><i class="material-icons small left">visibility</i>Go Online</a>
-          <a class="waves-effect grey waves-light disabled btn" id="goOffline" onclick="goOffline()"><i class="material-icons small left">visibility_off</i>Go Offline</a>
-        </div>
       </div>
+      <button onclick="goOnline()">Online</button>
+      <span id="authresponse"></span>
     </div>
-    <div class="col s12 m8" style="height:400px">
+
+    <div class="col s12 m7" style="height:400px">
 	      <div class="input-field col s12 m12 z-depth-3">
 	      <ul id="messages">
 	      </ul>
@@ -49,6 +48,7 @@
           </div>
     </div>
 </div>
+<!--
 <footer class="page-footer">
   <div class="container">
     <div class="row">
@@ -64,6 +64,7 @@
     </div>
   </div>
 </footer>
+-->
             
 <script>
 	// Load the SDK asynchronously

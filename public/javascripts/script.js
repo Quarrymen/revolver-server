@@ -1,4 +1,5 @@
 mcount = 0;
+baseURL = 'http://localhost:3000';
 //********* page functionality
 
 
@@ -19,21 +20,23 @@ $('#message').keypress(function(event){
   }
 });
 
-socket.on('chat message', function(msg){
-	$('#messages').append($('<li id=m'+mcount+'>').text(msg));
-	Materialize.showStaggeredList('#m'+mcount)
+socket.on('chat message', function(data){//received a message
+	$('#messages').append($('<li id=m'+mcount+'>').text(data.user +" :"+ data.msg));
 	mcount++;
 });
 
 function goOnline(){
-	$.post("http://localhost:3000/status", { uid: userId, tok: accessToken,status:'online' }).done(function(data, status){
-			//use toasts here #fix
-	        console.log("Data: " + data + "\nStatus: " + status);
-		});
-
+  //check if userId and accesstoken is available
+  checkLoginState(function(userId,accessToken){
+      $.post(baseURL+"/status", { uid: userId, tok: accessToken,status:'online' }).done(function(data, status){
+        //use toasts here #fix
+            console.log("Data: " + data + "\nStatus: " + status);
+    });
+  });
 }
+
 function goOffline(){
-	$.post("http://localhost:3000/status", { uid: userId, tok: accessToken,status:'offline' }).done(function(data, status){
+	$.post(baseURL+"/status", { uid: userId,status:'offline' }).done(function(data, status){
 			//use toasts here #fix
 	        console.log("Data: " + data + "\nStatus: " + status);
 	});
@@ -41,30 +44,23 @@ function goOffline(){
 
 //********** facebook js sdk
 
-
-// This is called with the results from from FB.getLoginStatus().
-function statusChangeCallback(response) {
-  console.log(response);
-  if (response.status === 'connected') {
-    // Logged into your app and Facebook.
-    accessToken = response.authResponse.accessToken;
-     userId = response.authResponse.userID;
-    testAPI();
-  } else if (response.status === 'not_authorized') {
-    // The person is logged into Facebook, but not your app.
-    document.getElementById('status').innerHTML = 'Please log ' +
-      'into this app.';
-  } else {
-    // The person is not logged into Facebook, so we're not sure if
-    // they are logged into this app or not.
-    document.getElementById('status').innerHTML = 'Please log ' +
-      'into Facebook.';
-  }
-}
-
-function checkLoginState() {
+function checkLoginState(callback) {
   FB.getLoginStatus(function(response) {
-    statusChangeCallback(response);
+      if (response.status === 'connected') {
+      // Logged into your app and Facebook.
+      accessToken = response.authResponse.accessToken;
+       userId = response.authResponse.userID;
+      callback(userId,accessToken);
+    } else if (response.status === 'not_authorized') {
+      // The person is logged into Facebook, but not your app.
+      document.getElementById('authresponse').innerHTML = 'Please log ' +
+        'into this app.';
+    } else {
+      // The person is not logged into Facebook, so we're not sure if
+      // they are logged into this app or not.
+      document.getElementById('authresponse').innerHTML = 'Please log ' +
+        'into Facebook.';
+    }
   });
 }
 

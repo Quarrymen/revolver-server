@@ -6,43 +6,60 @@ FB.options({appSecret:'448fbdd4a888c54a8bc58f987c25a23e'});
 //chat partner search algorithm
 
 router.post('/', function(req, res, next) {
-	//check if not already present
+ 	//we compare new users with present users to check if they have a relationship - friend or friend of friends
+ 	if(!req.body.uid || !req.body.tok)
+ 	res.send('some error');	
 
-	 	//we compare new users with present users to check if they have a relationship - friend or friend of friends
+ 	requestingUser = req.body.uid;
+ 	requestingUserToken = req.body.tok;
 
-	 	if(Object.keys(global.waitList).length === 0)
-	 	global.waitList[req.body.uid]=req.body.tok;	
+	global.users[requestingUser]={
+		id:requestingUser,
+		token:requestingUserToken,
+		socket:''
+		status:'wait' // wait chat	
+	}	
+ 	if(global.waitUsers.length === 0){
+ 		global.waitUsers.push(requestingUser);
+ 	}
+ 	else if(global.waitUsers.length >= 1)
+ 	{	
 
-	 	console.log(global.waitList);
-
-	 	for(var waitingUser in global.waitList)
-	 	relationship(waitingUser,req.body.uid,req.body.tok);
-	 	/*
-	 	if(relationship(waitingUser,req.body.uid,req.body.tok)){
-	 		//if there is a relationship
-	 		//delete waitList[waitingUser];
-	 	}else{
-	 		//user not found - add this user
-	 		global.waitList[req.body.uid]=req.body.tok;	
+ 		//loop throught async requests
+	 	for(var i=0;i<waitUsers.length;i++){ 
+	 		isFriend(waitUsers[i],requestingUser,requestingUserToken,function(){
+	 			//find it's current socket id
+	 		});
 	 	}
-	 	*/
-  	res.send('hooray');
+	 	//add to the list
+	 	global.waitUsers.push(requestingUser);
+
+ 	}
 });
 
-function relationship(target_id,source_id,token){
+function isFriend(target_id,source_id,token,callback){
 
 //target_id=id of user to check relationship
 //source_id=logged in user
 	FB.setAccessToken(token);
-	console.log('checking relationship...have some patience');
-	FB.api('fql', { q: 'SELECT uid, name, work FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = '+target_id+' AND uid2='+source_id+') ORDER BY name' }, function(res) {
-	  
-	  //if not empty then friends
-	  console.log(res.data);
-	});
-	return false;
+	FB.api(
+    "/"+source_id+"/friends/"+target_id,
+    function (response) {
+      if(response.data.length>0){
+      	//friends
+      	callback();
+      }
+    });
+}
 
+module.exports = router;
 /*
+
+FB.api('fql', { q: 'SELECT uid, name, work FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = '+target_id+' AND uid2='+source_id+') ORDER BY name' }, function(res) {
+  
+  //if not empty then friends
+  console.log(res);
+});
 if(!empty($user_info)) 
 {
       $degree='friend';
@@ -62,17 +79,10 @@ else {
 }
 */
 
-}
-
-
-module.exports = router;
 
 
 /*
 reference http://stackoverflow.com/questions/9480747/get-relationship-friend-friend-of-friend-between-two-facebook-ids-by-facebook
-
-two people friends or not
-/{user-a-id}/friends/{user-b-id} 
 
 A list of Facebook friends that the session user and the request user have in common.
 /{user-id}.context/mutual_friends
